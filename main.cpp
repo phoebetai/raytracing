@@ -5,7 +5,9 @@
 #include <iostream>
 
 color ray_color(const ray &r) {
-    return color(0, 0, 0);
+    vec3 unit_direction = unit_vector(r.direction()); // y ranges [-1, 1]
+    double a = 0.5 * (unit_direction.y() + 1.0); // a ranges [0, 1], where 0 is white and 1 is blue
+    return (1.0 - a) * color(1.0, 1.0, 1.0) + a * color(0.5, 0.7, 1.0);
 }
 
 int main() {
