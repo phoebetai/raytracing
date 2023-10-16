@@ -8,21 +8,21 @@ class sphere : public hittable {
 	public:
 		sphere(point3 _center, double _radius) : center(_center), radius(_radius) {}
 
-		bool hit(const ray &r, double ray_tmin, double ray_tmax, hit_record &rec) const override {
+		bool hit(const ray &r, interval ray_t, hit_record &rec) const override {
 			vec3 oc = r.origin() - center;
 			double a = r.direction().length_squared();
 			double half_b = dot(oc, r.direction());
 			double c = oc.length_squared() - radius * radius;
 
 			double discriminant = half_b * half_b - a * c;
-			if (discriminant < 0) return false;
+			if (discriminant < 0) return false; // No real solutions
 			double sqrtd = sqrt(discriminant);
 
 			// Find the nearest root that lies in the acceptable range
 			double root = (-half_b - sqrtd) / a;
-			if (root <= ray_tmin || ray_tmax <= root) {
+			if (!ray_t.surrounds(root)) {
 				root = (-half_b + sqrtd) / a;
-				if (root <= ray_tmin || ray_tmax <= root) {
+				if (!ray_t.surrounds(root)) {
 					return false;
 				}
 			}

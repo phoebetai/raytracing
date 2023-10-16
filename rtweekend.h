@@ -20,6 +20,7 @@ inline double degrees_to_radians(double degrees) {
 }
 
 // Common headers
+#include "interval.h"
 #include "ray.h"
 #include "vec3.h"
 
