@@ -11,8 +11,9 @@
 // Constructs and dispatches rays into world, renders image
 class camera {
 	public:
-		double aspect_ratio = 1.0; // Ratio of image width over height
-		int    image_width  = 100; // Rendered image width in pixel count
+		double aspect_ratio      = 1.0; // Ratio of image width over height
+		int    image_width       = 100; // Rendered image width in pixel count
+		int    samples_per_pixel = 10;  // Count of random samples per pixel
 
 		void render(const hittable &world) {
 			initialize();
@@ -24,12 +25,13 @@ class camera {
 				std::clog << "\rScanlines remaining: " << (image_height - j) << ' ' << std::flush;
 
 				for (int i = 0; i < image_width; ++i) {
-					point3 pixel_center = pixel00_loc + (i * pixel_delta_u) + (j * pixel_delta_v);
-					vec3 ray_direction = pixel_center - center;
-					ray r(center, ray_direction);
+					color pixel_color(0, 0, 0);
+					for (int sample = 0; sample < samples_per_pixel; ++sample) {
+						ray r = get_ray(i, j);
+						pixel_color += ray_color(r, world);
+					}
 
-					color pixel_color = ray_color(r, world);
-					write_color(std::cout, pixel_color);
+					write_color(std::cout, pixel_color, samples_per_pixel);
 				}
 			}
 
@@ -66,6 +68,24 @@ class camera {
 			// Calculate the location of the upper left pixel
 			point3 viewport_upper_left = center - vec3(0, 0, focal_length) - viewport_u / 2 - viewport_v / 2; // Camera vector goes through center of viewport
 			pixel00_loc = viewport_upper_left + 0.5 * (pixel_delta_u + pixel_delta_v);  // Scale pixel center offset by actual pixel deltas
+		}
+
+		ray get_ray(int i, int j) const {
+			// Get a randomly sampled camera ray for the pixel at location i,j
+			point3 pixel_center = pixel00_loc + (i * pixel_delta_u) + (j * pixel_delta_v);
+			point3 pixel_sample = pixel_center + pixel_sample_square();
+
+			point3 ray_origin = center;
+			vec3 ray_direction = pixel_sample - ray_origin;
+
+			return ray(ray_origin, ray_direction);
+		}
+
+		vec3 pixel_sample_square() const {
+			// Returns a random point in the square surrounding a pixel at the origin
+			double px = -0.5 + random_double();
+			double py = -0.5 + random_double();
+			return (px * pixel_delta_u) + (py * pixel_delta_v);
 		}
 
 		color ray_color(const ray &r, const hittable &world) const {
