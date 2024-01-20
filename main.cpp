@@ -10,8 +10,8 @@ int main() {
     hittable_list world;
 
     shared_ptr<material> material_ground = make_shared<lambertian>(color(0.8, 0.8, 0.0));
-    shared_ptr<material> material_center = make_shared<lambertian>(color(0.7, 0.3, 0.3));
-    shared_ptr<material> material_left   = make_shared<metal>(color(0.8, 0.8, 0.8), 0.3);
+    shared_ptr<material> material_center = make_shared<dielectric>(1.5);
+    shared_ptr<material> material_left   = make_shared<dielectric>(1.5);
     shared_ptr<material> material_right  = make_shared<metal>(color(0.8, 0.6, 0.2), 1.0);
 
     world.add(make_shared<sphere>(point3( 0.0, -100.5, -1.0), 100.0, material_ground));
